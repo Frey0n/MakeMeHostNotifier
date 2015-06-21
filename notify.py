@@ -38,7 +38,7 @@ class WindowsBalloonTip:
         Shell_NotifyIcon(NIM_ADD, nid)
         Shell_NotifyIcon(NIM_MODIFY, (self.hwnd, 0, NIF_INFO, win32con.WM_USER+20, hicon, 'Balloon Tooltip', msg, 200, title))
         # self.show_balloon(title, msg)
-        time.sleep(5)
+        time.sleep(10)
 
         # Destroy
         DestroyWindow(self.hwnd)
