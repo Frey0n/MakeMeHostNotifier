@@ -3,13 +3,40 @@ import time
 import notify
 import datetime
 import sys
+import pyperclip
 
-
-def GameName(f,name):
+def Clipboard(spoofcheck):    
+    backup=pyperclip.paste()
+    if backup: print '      Old content:  "'+backup+'"'
+    pyperclip.copy(spoofcheck)
+    
+def HostBot(cent):
+    temp=cent
+    while 'MakeMe' not in f[temp:temp+7]:
+        temp-=1
+        if (cent-temp) > 100: return 'Not on MakeMe'
+    bot=temp
+    while f[temp] != '<':
+        temp+=1
+    top=temp
+    ghost= f[bot:top]
+    return ghost
+    
+def GameName(f,name,stat):
     cent=f.lower().index(name)
+    temp=cent
+    
+    #Getting the host bot  --------------------------
+    ghost = HostBot(cent)
+    
+    # Getting the game name  -------------------------
+    while f[temp] != '/':
+        temp-=1
     while f[cent] != '>':
         cent-=1
     bot=cent+1
+    
+    #Getting the number of players --------------------
     while f[cent] != '<':
         cent+=1
     top=cent
@@ -19,27 +46,34 @@ def GameName(f,name):
     p_top=x
     gname=f[bot:top]
     gplay=f[p_bot:p_top]
-    print 'Game name: '+gname+' '+gplay
+    
+    #Printing out ------------------------
+    spoofcheck = '/w '+ghost+' s'
+    print '   Game name: '+gname+'\n'+'   Players: '+gplay
+    if stat: print'   Spoofcheck: '+spoofcheck
+    if stat: Clipboard(spoofcheck)
     return gname,gplay 
 
 
-def GameSearch(f,tests):
+def GameSearch(f,tests,stat):
     for name in tests:
         if name in f.lower():
-            print 'up!', datetime.datetime.now().strftime("%H:%M"),
-            gname,gplay = GameName(f,name)
-            notify.balloon_tip('Game up!', 'Game name: '+gname+' '+gplay)
-            return 1
-    print 'down', datetime.datetime.now().strftime("%H:%M")
-    return 0
-    
+            print 'Up!', datetime.datetime.now().strftime("%H:%M")
+            gname,gplay = GameName(f,name,stat)
+            notify.balloon_tip('Game up!', 'Game name: '+gname+'\n'+'Players: '+gplay)
+            return 0
+    print 'Down', datetime.datetime.now().strftime("%H:%M")
+    return 1
+
+        
 try:
     a=float(sys.argv[1])
 except:
     a=60
+stat=1
 
 while 1:    
     tests=['parasite','p a r a s i t e']
     f=urllib2.urlopen("http://makemehost.com/games.php").read()
-    GameSearch(f,tests)        
+    stat=GameSearch(f,tests,stat)        
     time.sleep(a)
